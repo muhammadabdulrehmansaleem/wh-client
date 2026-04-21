@@ -82,7 +82,7 @@ export default function CompleteProfile() {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<ProfileFormData>(INITIAL_FORM);
   const [skillInput, setSkillInput] = useState("");
-  const [geocoding, setGeocoding] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // File previews
@@ -120,33 +120,63 @@ export default function CompleteProfile() {
     setSkillInput("");
   };
 
-  const geocodeAddress = async () => {
-    const query = [formData.address_line1, formData.city, formData.postcode, "UK"]
-      .filter(Boolean)
-      .join(", ");
-    if (!query) {
-      toast.error("Please enter an address first.");
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
       return;
     }
-    setGeocoding(true);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=gb`,
-        { headers: { "User-Agent": "WorkHive/1.0 (workhive.app)" } }
-      );
-      const data = await res.json();
-      if (data.length > 0) {
-        update("latitude", parseFloat(data[0].lat));
-        update("longitude", parseFloat(data[0].lon));
-        toast.success("Coordinates detected!");
-      } else {
-        toast.error("Address not found. Try a more specific address.");
-      }
-    } catch {
-      toast.error("Geocoding failed. Please try again.");
-    } finally {
-      setGeocoding(false);
-    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        update("latitude", latitude);
+        update("longitude", longitude);
+        // Reverse-geocode to auto-fill address fields
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            { headers: { "User-Agent": "WorkHive/1.0 (workhive.app)" } }
+          );
+          const data = await res.json();
+          if (data?.address) {
+            const addr = data.address;
+            const line1 = [
+              addr.house_number,
+              addr.road || addr.pedestrian || addr.footway,
+            ]
+              .filter(Boolean)
+              .join(" ");
+            const city =
+              addr.city ||
+              addr.town ||
+              addr.village ||
+              addr.county ||
+              "";
+            const postcode = (addr.postcode || "").split("-")[0].trim();
+            if (line1) update("address_line1", line1);
+            if (city) update("city", city);
+            if (postcode) update("postcode", postcode.toUpperCase());
+          }
+          toast.success("Precise location detected and address filled in!");
+        } catch {
+          // coords already saved — address fill-in failed silently
+          toast.success("Location detected! Please verify the address fields.");
+        } finally {
+          setLocating(false);
+        }
+      },
+      (err) => {
+        setLocating(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error("Location access denied. Please allow location in your browser settings.");
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          toast.error("Location unavailable. Please enter your address manually.");
+        } else {
+          toast.error("Could not get location. Please enter your address manually.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const canProceed = (): boolean => {
@@ -390,42 +420,60 @@ export default function CompleteProfile() {
         </div>
       </div>
 
-      {/* Geocoding */}
-      <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium">Location Coordinates</p>
-            <p className="text-xs text-muted-foreground">
-              Used to match you with nearby {formData.role === "worker" ? "jobs" : "workers"}
+      {/* Precise location */}
+      <div
+        className={`rounded-xl border-2 p-4 space-y-3 transition-colors ${
+          formData.latitude != null
+            ? "border-amber-500 bg-amber-50 dark:bg-amber-950/20"
+            : "border-dashed border-border bg-muted/30"
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className={`mt-0.5 p-2 rounded-full shrink-0 transition-colors ${
+              formData.latitude != null
+                ? "bg-amber-500 text-white"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            <MapPin className="h-4 w-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold">
+              {formData.latitude != null ? "Precise location detected" : "Use my precise location"}
             </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {formData.latitude != null
+                ? "Your address has been filled in automatically."
+                : "Let your browser detect your exact location and auto-fill the address above."}
+            </p>
+            {formData.latitude != null && formData.longitude != null && (
+              <p className="text-xs font-mono text-muted-foreground mt-1">
+                {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}
+              </p>
+            )}
           </div>
           <Button
             type="button"
-            variant="outline"
+            variant={formData.latitude != null ? "outline" : "default"}
             size="sm"
-            onClick={geocodeAddress}
-            disabled={geocoding}
-            className="shrink-0"
+            onClick={useMyLocation}
+            disabled={locating}
+            className={`shrink-0 ${
+              formData.latitude == null
+                ? "bg-amber-500 hover:bg-amber-600 text-white border-0"
+                : ""
+            }`}
           >
             <MapPin className="mr-1.5 h-3.5 w-3.5" />
-            {geocoding ? "Detecting..." : "Auto-detect"}
+            {locating ? "Locating..." : formData.latitude != null ? "Re-detect" : "Allow Location"}
           </Button>
         </div>
-        {formData.latitude != null && formData.longitude != null && (
-          <div className="flex gap-6 text-xs text-muted-foreground">
-            <span>
-              Lat:{" "}
-              <span className="font-mono text-foreground">
-                {formData.latitude.toFixed(6)}
-              </span>
-            </span>
-            <span>
-              Lng:{" "}
-              <span className="font-mono text-foreground">
-                {formData.longitude.toFixed(6)}
-              </span>
-            </span>
-          </div>
+        {formData.latitude == null && (
+          <p className="text-[11px] text-muted-foreground pl-11">
+            Your browser will ask for permission — this is used only to match you with nearby{" "}
+            {formData.role === "worker" ? "jobs" : "workers"}.
+          </p>
         )}
       </div>
     </div>
