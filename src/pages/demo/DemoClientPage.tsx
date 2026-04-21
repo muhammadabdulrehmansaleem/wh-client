@@ -7,11 +7,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Plus, MapPin, CreditCard, Clock, Filter, Star, CheckCircle2,
-  Eye, ArrowRight, Bell, Briefcase, ChevronRight, X, Award,
+  ArrowRight, Bell, Briefcase, ChevronRight, Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { mockJobs, mockWorkers, mockReviews } from "@/data/mockData";
+import { DemoNav } from "@/components/DemoNav";
+import { DemoFooter } from "@/components/DemoFooter";
 
 const TABS = ["All Jobs", "Open", "In Progress", "Completed"] as const;
 type Tab = typeof TABS[number];
@@ -50,30 +51,14 @@ export default function DemoClientPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
 
-      {/* Demo Banner */}
-      <div className="gradient-amber text-accent-foreground text-center py-2 px-4 text-sm font-medium sticky top-0 z-50 flex items-center justify-center gap-3">
-        <Eye className="h-4 w-4 shrink-0" />
-        <span>You're viewing a <strong>read-only demo</strong> of the Client dashboard. All data is sample data.</span>
-        <Link to="/signup">
-          <Button size="sm" variant="outline" className="h-7 text-xs border-accent-foreground/40 hover:bg-accent-foreground/10 ml-2">
-            Create Free Account <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        </Link>
-      </div>
+      <DemoNav active="client" />
 
-      <div className="flex flex-1 overflow-hidden">
+      {/* push content below fixed nav */}
+      <div className="flex flex-1 overflow-hidden pt-16">
 
         {/* Sidebar */}
         <aside className="hidden lg:flex w-60 border-r flex-col shrink-0 bg-card">
-          <div className="p-5 border-b">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg gradient-amber">
-                <span className="text-xs font-bold text-accent-foreground">WH</span>
-              </div>
-              <span className="text-lg font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>WorkHive</span>
-            </Link>
-          </div>
-          <nav className="flex-1 p-3 space-y-1">
+          <nav className="flex-1 p-3 pt-4 space-y-1">
             {[
               { icon: Briefcase, label: "My Jobs",      active: true },
               { icon: Plus,      label: "Post a Job",   active: false },
@@ -322,14 +307,7 @@ export default function DemoClientPage() {
         </main>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="border-t bg-card py-4 px-6 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">Like what you see? Sign up free and post your first job in under 2 minutes.</p>
-        <div className="flex gap-3 shrink-0">
-          <Link to="/"><Button variant="outline" size="sm">Back to Home</Button></Link>
-          <Link to="/signup"><Button size="sm" className="gradient-amber text-accent-foreground gap-1">Get Started Free <ChevronRight className="h-3.5 w-3.5" /></Button></Link>
-        </div>
-      </div>
+      <DemoFooter />
     </div>
   );
 }

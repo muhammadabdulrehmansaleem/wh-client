@@ -1,23 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Shield, MapPin, Bell, CreditCard, ArrowRight, User, LogOut,
-  Pencil, ChevronDown, LogIn, UserPlus, Star, CheckCircle2,
-  Clock, Briefcase, Zap, Users, TrendingUp, Award, ChevronRight,
+  Shield, MapPin, CreditCard, ArrowRight, Star, CheckCircle2,
+  Clock, Briefcase, Zap, Bell, Users, TrendingUp, Award, ChevronRight,
   Wrench, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Footer } from "@/components/Footer";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DemoNav } from "@/components/DemoNav";
+import { DemoFooter } from "@/components/DemoFooter";
 import { CATEGORIES, mockJobs, mockWorkers, mockReviews, platformStats } from "@/data/mockData";
-import authService from "@/services/auth.service";
-import apiClient from "@/lib/axios";
-import { API_URLS } from "@/config/api.urls";
-import { toast } from "sonner";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -48,114 +40,12 @@ const TRUST = [
 ];
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(() => authService.getUser());
   const [activeTab, setActiveTab] = useState<"client" | "worker">("client");
-  const isLoggedIn = user !== null;
-
-  const handleLogout = async () => {
-    try { await apiClient.post(API_URLS.AUTH.LOGOUT); } catch { /* ignore */ }
-    authService.clear();
-    setUser(null);
-    toast.success("Logged out.");
-    navigate("/login", { replace: true });
-  };
 
   return (
     <div className="min-h-screen bg-background">
 
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 border-b bg-background/85 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-amber">
-              <span className="text-sm font-bold text-accent-foreground">WH</span>
-            </div>
-            <span className="text-xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>WorkHive</span>
-          </Link>
-
-          <div className="hidden items-center gap-5 md:flex">
-            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How it works</a>
-            <a href="#categories"   className="text-sm text-muted-foreground hover:text-foreground transition-colors">Categories</a>
-            <a href="#workers"      className="text-sm text-muted-foreground hover:text-foreground transition-colors">Top workers</a>
-            <a href="#reviews"      className="text-sm text-muted-foreground hover:text-foreground transition-colors">Reviews</a>
-            <span className="h-6 w-px bg-border" />
-            <Link to="/demo/client" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5" /> Client Preview
-            </Link>
-            <Link to="/demo/worker" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5" /> Worker Preview
-            </Link>
-            <span className="h-6 w-px bg-border" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-xl border bg-card px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full gradient-amber text-accent-foreground">
-                    <User className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="max-w-[120px] truncate">
-                    {isLoggedIn ? (user?.full_name ?? user?.first_name ?? user?.email) : "Account"}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {isLoggedIn ? (
-                  <>
-                    <DropdownMenuLabel className="text-xs text-muted-foreground font-normal truncate">{user?.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer"><Briefcase className="h-4 w-4" /> Dashboard</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer"><Pencil className="h-4 w-4" /> Update Profile</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
-                      <LogOut className="h-4 w-4" /> Log Out
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link to="/login" className="flex items-center gap-2 cursor-pointer"><LogIn className="h-4 w-4" /> Log In</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/signup" className="flex items-center gap-2 cursor-pointer"><UserPlus className="h-4 w-4" /> Sign Up</Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <div className="flex items-center gap-2 md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex h-8 w-8 items-center justify-center rounded-full gradient-amber text-accent-foreground focus:outline-none">
-                  <User className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem asChild><Link to="/demo/client" className="flex items-center gap-2 cursor-pointer"><Eye className="h-4 w-4" /> Client Preview</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/demo/worker" className="flex items-center gap-2 cursor-pointer"><Eye className="h-4 w-4" /> Worker Preview</Link></DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {isLoggedIn ? (
-                  <>
-                    <DropdownMenuItem asChild><Link to="/dashboard" className="flex items-center gap-2 cursor-pointer"><Briefcase className="h-4 w-4" /> Dashboard</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link to="/profile" className="flex items-center gap-2 cursor-pointer"><Pencil className="h-4 w-4" /> Profile</Link></DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}><LogOut className="h-4 w-4" /> Log Out</DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem asChild><Link to="/login" className="flex items-center gap-2 cursor-pointer"><LogIn className="h-4 w-4" /> Log In</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link to="/signup" className="flex items-center gap-2 cursor-pointer"><UserPlus className="h-4 w-4" /> Sign Up</Link></DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </nav>
+      <DemoNav />
 
       {/* Hero */}
       <section className="relative overflow-hidden pt-16">
@@ -528,7 +418,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <Footer />
+      <DemoFooter />
     </div>
   );
 }

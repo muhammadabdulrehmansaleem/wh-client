@@ -7,11 +7,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   MapPin, CreditCard, Clock, Bell, Star, CheckCircle2,
-  Eye, ArrowRight, Briefcase, ChevronRight, Award, Zap,
+  ArrowRight, Briefcase, ChevronRight, Award, Zap,
   ToggleLeft, TrendingUp, Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockJobs, mockWorkers, mockNotifications } from "@/data/mockData";
+import { DemoNav } from "@/components/DemoNav";
+import { DemoFooter } from "@/components/DemoFooter";
 
 const CATEGORY_COLORS: Record<string, string> = {
   plumber:     "bg-blue-500/20 text-blue-400",
@@ -35,29 +37,13 @@ export default function DemoWorkerPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
 
-      {/* Demo Banner */}
-      <div className="gradient-amber text-accent-foreground text-center py-2 px-4 text-sm font-medium sticky top-0 z-50 flex items-center justify-center gap-3">
-        <Eye className="h-4 w-4 shrink-0" />
-        <span>You're viewing a <strong>read-only demo</strong> of the Worker dashboard. All data is sample data.</span>
-        <Link to="/signup">
-          <Button size="sm" variant="outline" className="h-7 text-xs border-accent-foreground/40 hover:bg-accent-foreground/10 ml-2">
-            Join as a Worker <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        </Link>
-      </div>
+      <DemoNav active="worker" />
 
-      <div className="flex flex-1 overflow-hidden">
+      {/* push content below fixed nav */}
+      <div className="flex flex-1 overflow-hidden pt-16">
 
         {/* Sidebar */}
         <aside className="hidden lg:flex w-60 border-r flex-col shrink-0 bg-card">
-          <div className="p-5 border-b">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg gradient-amber">
-                <span className="text-xs font-bold text-accent-foreground">WH</span>
-              </div>
-              <span className="text-lg font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>WorkHive</span>
-            </Link>
-          </div>
 
           {/* Worker profile card */}
           <div className="p-4 border-b">
@@ -346,14 +332,7 @@ export default function DemoWorkerPage() {
         </main>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="border-t bg-card py-4 px-6 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">Join 3,000+ workers already earning on WorkHive. No subscription needed.</p>
-        <div className="flex gap-3 shrink-0">
-          <Link to="/"><Button variant="outline" size="sm">Back to Home</Button></Link>
-          <Link to="/signup"><Button size="sm" className="gradient-amber text-accent-foreground gap-1">Join as a Worker <ChevronRight className="h-3.5 w-3.5" /></Button></Link>
-        </div>
-      </div>
+      <DemoFooter />
     </div>
   );
 }
