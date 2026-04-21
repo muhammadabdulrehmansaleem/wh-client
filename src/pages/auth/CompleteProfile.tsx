@@ -194,12 +194,10 @@ export default function CompleteProfile() {
       if (formData.passport) fd.append("passport", formData.passport);
 
       const { data } = await apiClient.put(API_URLS.USERS.COMPLETE_PROFILE, fd);
-      authService.setUser(data.user);
+      const updatedUser = { ...data.user, profile_picture_url: data.profile_picture_url ?? null };
+      authService.setUser(updatedUser);
       toast.success("Profile completed! Welcome to WorkHive.");
-      navigate(
-        formData.role === "worker" ? "/worker/dashboard" : "/client/jobs",
-        { replace: true }
-      );
+      navigate("/dashboard", { replace: true });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || "Failed to complete profile.");

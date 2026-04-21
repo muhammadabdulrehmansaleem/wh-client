@@ -71,16 +71,12 @@ export default function VerifyTwoFactor() {
 
       toast.success("Verified! Redirecting...");
 
-      // Redirect based on profile completion status
+      // Let the /dashboard role-redirector decide where to send the user
       const user = data.user;
       if (!user.profile_complete) {
         navigate("/complete-profile", { replace: true });
-      } else if (user.role === "worker") {
-        navigate("/worker", { replace: true });
-      } else if (user.role === "client") {
-        navigate("/client/jobs", { replace: true });
       } else {
-        navigate("/", { replace: true });
+        navigate("/dashboard", { replace: true });
       }
     } catch (error: any) {
       const message = error?.response?.data?.message || "Verification failed.";
