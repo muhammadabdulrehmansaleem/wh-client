@@ -259,7 +259,7 @@ export const mockJobs: Job[] = [
     description: "Moving out Friday. Need professional deep clean to secure full deposit return. 4 beds, 2 baths.",
     minFee: 180, maxFee: 280, status: "open", postedBy: "Mike Johnson", postedAt: "15 min ago",
     depositPaid: false, urgency: "urgent", bidsCount: 7,
-    image: "https://images.unsplash.com/photo-1558618047-3c8c73d48568?w=400&h=250&fit=crop",
+    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=250&fit=crop&auto=format",
   },
   {
     id: "3", title: "SIA Security Guard – Night Shift", category: "security", city: "Birmingham",
@@ -280,7 +280,7 @@ export const mockJobs: Job[] = [
     description: "Master bedroom alcove wardrobe, floor to ceiling. Sliding doors. Approx 3.5m wide. Drawings provided.",
     minFee: 600, maxFee: 1100, status: "in_progress", postedBy: "Emma Lewis", postedAt: "1 day ago",
     depositPaid: true, urgency: "normal", bidsCount: 6,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop",
+    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=250&fit=crop&auto=format",
   },
   {
     id: "6", title: "Garden Landscaping & Clearance", category: "gardener", city: "Liverpool",

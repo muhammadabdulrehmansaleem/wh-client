@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Plus, MapPin, CreditCard, Clock, Filter, Star, CheckCircle2,
-  ArrowRight, Bell, Briefcase, ChevronRight, Award,
+  Eye, ArrowRight, Bell, Briefcase, ChevronRight, Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockJobs, mockWorkers, mockReviews } from "@/data/mockData";
