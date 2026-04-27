@@ -11,6 +11,8 @@ import Login            from "./pages/auth/Login";
 import Signup           from "./pages/auth/Signup";
 import VerifyTwoFactor  from "./pages/auth/VerifyTwoFactor";
 import CompleteProfile  from "./pages/auth/CompleteProfile";
+import ForgotPassword   from "./pages/auth/ForgotPassword";
+import ResetPassword    from "./pages/auth/ResetPassword";
 
 // ── Shared authenticated pages ────────────────────────────────────────────────
 import Dashboard        from "./pages/Dashboard";
@@ -55,6 +57,8 @@ const App = () => (
           <Route path="/signup"              element={<Signup />} />
           <Route path="/verify-2fa"          element={<VerifyTwoFactor />} />
           <Route path="/complete-profile"    element={<CompleteProfile />} />
+          <Route path="/forgot-password"     element={<ForgotPassword />} />
+          <Route path="/reset-password"      element={<ResetPassword />} />
           <Route path="/demo/client"          element={<DemoClientPage />} />
           <Route path="/demo/worker"          element={<DemoWorkerPage />} />
 

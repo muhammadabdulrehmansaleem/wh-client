@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { LogOut, Pencil, MapPin, Phone, Briefcase, X, User, Mail, Star, CheckCircle2 } from "lucide-react";
+import { LogOut, Pencil, MapPin, Phone, Briefcase, X, User, Mail, Star, CheckCircle2, Lock, Eye, EyeOff, Navigation } from "lucide-react";
 import apiClient from "@/lib/axios";
 import authService from "@/services/auth.service";
 import { API_URLS } from "@/config/api.urls";
@@ -39,6 +39,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const toCoord = (v: unknown): number | null => {
+  if (v == null) return null;
+  const n = parseFloat(String(v));
+  return isNaN(n) ? null : n;
+};
+
 const buildForm = (u: AuthUser) => ({
   first_name:    u.first_name    ?? "",
   last_name:     u.last_name     ?? "",
@@ -47,6 +53,8 @@ const buildForm = (u: AuthUser) => ({
   address_line2: u.address_line2 ?? "",
   city:          u.city          ?? "",
   postcode:      u.postcode      ?? "",
+  latitude:      toCoord(u.latitude),
+  longitude:     toCoord(u.longitude),
   category:      u.category      ?? "",
   bio:           u.bio           ?? "",
   skills:        u.skills        ?? ([] as string[]),
@@ -68,6 +76,18 @@ export default function Profile() {
   const [saving, setSaving]                 = useState(false);
   const [loggingOut, setLoggingOut]         = useState(false);
   const [editOpen, setEditOpen]             = useState(false);
+  const [locating, setLocating]             = useState(false);
+
+  // Change-password dialog state
+  const [pwOpen, setPwOpen]                 = useState(false);
+  const [otpSent, setOtpSent]               = useState(false);
+  const [sendingOtp, setSendingOtp]         = useState(false);
+  const [otp, setOtp]                       = useState("");
+  const [newPw, setNewPw]                   = useState("");
+  const [confirmPw, setConfirmPw]           = useState("");
+  const [showNewPw, setShowNewPw]           = useState(false);
+  const [showConfirmPw, setShowConfirmPw]   = useState(false);
+  const [changingPw, setChangingPw]         = useState(false);
 
   if (!user) {
     navigate("/login", { replace: true });
@@ -83,6 +103,92 @@ export default function Profile() {
     const t = skillInput.trim();
     if (t && !form.skills.includes(t)) update("skills", [...form.skills, t]);
     setSkillInput("");
+  };
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        update("latitude", latitude);
+        update("longitude", longitude);
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            { headers: { "User-Agent": "WorkHive/1.0" } }
+          );
+          const data = await res.json();
+          if (data?.address) {
+            const addr = data.address;
+            const line1 = [addr.house_number, addr.road || addr.pedestrian].filter(Boolean).join(" ");
+            const city  = addr.city || addr.town || addr.village || addr.county || "";
+            const postcode = (addr.postcode || "").split("-")[0].trim().toUpperCase();
+            if (line1) update("address_line1", line1);
+            if (city)  update("city", city);
+            if (postcode) update("postcode", postcode);
+          }
+          toast.success("Location detected and address updated!");
+        } catch {
+          toast.success("Location detected! Please verify the address.");
+        } finally {
+          setLocating(false);
+        }
+      },
+      (err) => {
+        setLocating(false);
+        if (err.code === err.PERMISSION_DENIED)
+          toast.error("Location access denied. Allow it in browser settings.");
+        else
+          toast.error("Could not get location. Enter address manually.");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const handleSendOtp = async () => {
+    setSendingOtp(true);
+    try {
+      await apiClient.post(API_URLS.AUTH.SEND_RESET_OTP);
+      setOtpSent(true);
+      toast.success("A 6-digit code has been sent to your email.");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || "Failed to send code.");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!otp || !newPw || !confirmPw) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    if (newPw !== confirmPw) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    setChangingPw(true);
+    try {
+      await apiClient.post(API_URLS.AUTH.VERIFY_RESET_PASSWORD, {
+        otp,
+        new_password: newPw,
+        confirm_password: confirmPw,
+      });
+      toast.success("Password changed successfully!");
+      setPwOpen(false);
+      setOtpSent(false);
+      setOtp(""); setNewPw(""); setConfirmPw("");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || "Failed to change password.");
+    } finally {
+      setChangingPw(false);
+    }
   };
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -105,6 +211,8 @@ export default function Profile() {
       if (form.category) fd.append("category", form.category);
       if (form.bio)      fd.append("bio",      form.bio);
       if (form.skills.length > 0) fd.append("skills", JSON.stringify(form.skills));
+      if (form.latitude  != null) fd.append("latitude",  String(form.latitude));
+      if (form.longitude != null) fd.append("longitude", String(form.longitude));
       if (profilePic)    fd.append("profile_picture", profilePic);
 
       const { data } = await apiClient.patch(API_URLS.USERS.UPDATE_PROFILE, fd);
@@ -162,11 +270,16 @@ export default function Profile() {
 
             {/* Avatar — absolute so it overlaps header without clipping */}
             <div className="absolute -bottom-10 left-6">
-              <div className="h-20 w-20 rounded-full border-4 border-card shadow-md overflow-hidden">
+              <div className="h-20 w-20 rounded-full border-4 border-card shadow-md overflow-hidden bg-gradient-to-br from-amber-400 to-amber-600">
                 {displayPicture ? (
-                  <img src={displayPicture} alt="profile" className="h-full w-full object-cover" />
+                  <img
+                    src={displayPicture}
+                    alt="profile"
+                    className="h-full w-full object-cover"
+                    onError={() => setDisplayPicture(null)}
+                  />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                  <div className="h-full w-full flex items-center justify-center">
                     <span className="text-xl font-bold text-white">{initials}</span>
                   </div>
                 )}
@@ -252,6 +365,96 @@ export default function Profile() {
         {/* ── Actions ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3">
 
+          {/* Change Password Dialog */}
+          <Dialog open={pwOpen} onOpenChange={(o) => { setPwOpen(o); if (!o) { setOtpSent(false); setOtp(""); setNewPw(""); setConfirmPw(""); } }}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2 w-full col-span-2">
+                <Lock className="h-4 w-4" /> Change Password
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Change Password</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-2">
+                {!otpSent ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      We'll send a 6-digit code to <strong>{user.email}</strong> to verify it's you.
+                    </p>
+                    <Button
+                      className="w-full gradient-amber text-accent-foreground font-semibold"
+                      onClick={handleSendOtp}
+                      disabled={sendingOtp}
+                    >
+                      {sendingOtp ? "Sending..." : "Send Verification Code"}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-muted-foreground">Enter the code sent to <strong>{user.email}</strong> and your new password.</p>
+                    <div className="space-y-1.5">
+                      <Label>Verification Code</Label>
+                      <Input
+                        placeholder="6-digit code"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        maxLength={6}
+                        className="tracking-widest text-center font-mono text-lg h-11"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>New Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showNewPw ? "text" : "password"}
+                          placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special"
+                          value={newPw}
+                          onChange={(e) => setNewPw(e.target.value)}
+                          className="h-11 pr-10"
+                        />
+                        <button type="button" tabIndex={-1}
+                          onClick={() => setShowNewPw(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                          {showNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Confirm New Password</Label>
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPw ? "text" : "password"}
+                          placeholder="Repeat new password"
+                          value={confirmPw}
+                          onChange={(e) => setConfirmPw(e.target.value)}
+                          className="h-11 pr-10"
+                        />
+                        <button type="button" tabIndex={-1}
+                          onClick={() => setShowConfirmPw(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                          {showConfirmPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1" onClick={() => { setOtpSent(false); setOtp(""); }}>
+                        Resend Code
+                      </Button>
+                      <Button
+                        className="flex-1 gradient-amber text-accent-foreground font-semibold"
+                        onClick={handleChangePassword}
+                        disabled={changingPw}
+                      >
+                        {changingPw ? "Saving..." : "Save Password"}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
           {/* Edit Profile Dialog */}
           <Dialog open={editOpen} onOpenChange={setEditOpen}>
             <DialogTrigger asChild>
@@ -272,13 +475,16 @@ export default function Profile() {
                   <div className="flex items-center gap-4">
                     {profilePreview ? (
                       <img src={profilePreview} className="h-14 w-14 rounded-full object-cover border" alt="preview" />
+                    ) : displayPicture ? (
+                      <img src={displayPicture} className="h-14 w-14 rounded-full object-cover border" alt="profile"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                     ) : (
                       <div className="h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-sm">
                         <span className="text-lg font-bold text-white">{initials}</span>
                       </div>
                     )}
                     <label htmlFor="edit-profile-pic" className="cursor-pointer text-xs bg-muted px-3 py-1.5 rounded-md hover:bg-muted/80 transition-colors">
-                      {profilePreview ? "Change" : "Upload photo"}
+                      {profilePreview || displayPicture ? "Change photo" : "Upload photo"}
                     </label>
                     <input id="edit-profile-pic" type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
                       onChange={(e) => {
@@ -326,6 +532,34 @@ export default function Profile() {
                   <div className="space-y-1.5">
                     <Label>Postcode <span className="text-destructive">*</span></Label>
                     <Input value={form.postcode} onChange={(e) => update("postcode", e.target.value.toUpperCase())} maxLength={8} />
+                  </div>
+                </div>
+
+                {/* GPS Location */}
+                <div className={`rounded-xl border-2 p-3 transition-colors ${
+                  form.latitude != null ? "border-amber-500 bg-amber-50 dark:bg-amber-950/20" : "border-dashed border-border bg-muted/30"
+                }`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">
+                        {form.latitude != null ? "Precise location saved" : "Update precise location"}
+                      </p>
+                      {form.latitude != null ? (
+                        <p className="text-xs font-mono text-muted-foreground mt-0.5">
+                          {form.latitude.toFixed(5)}, {form.longitude?.toFixed(5)}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">Used to match you with nearby {user.role === "worker" ? "jobs" : "workers"}</p>
+                      )}
+                    </div>
+                    <Button
+                      type="button" size="sm" variant={form.latitude != null ? "outline" : "default"}
+                      onClick={useMyLocation} disabled={locating}
+                      className={form.latitude == null ? "gradient-amber text-accent-foreground border-0 shrink-0" : "shrink-0"}
+                    >
+                      <Navigation className="mr-1.5 h-3.5 w-3.5" />
+                      {locating ? "Locating..." : form.latitude != null ? "Re-detect" : "Use My Location"}
+                    </Button>
                   </div>
                 </div>
 
