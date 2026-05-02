@@ -365,7 +365,8 @@ export default function Profile() {
         {/* ── Actions ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3">
 
-          {/* Change Password Dialog */}
+          {/* Change Password — hidden for Google-only accounts */}
+          {user.auth_provider !== "google" ? (
           <Dialog open={pwOpen} onOpenChange={(o) => { setPwOpen(o); if (!o) { setOtpSent(false); setOtp(""); setNewPw(""); setConfirmPw(""); } }}>
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2 w-full col-span-2">
@@ -454,6 +455,13 @@ export default function Profile() {
               </div>
             </DialogContent>
           </Dialog>
+          ) : (
+            <div className="col-span-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-center">
+              <p className="text-xs text-muted-foreground">
+                Your account uses <strong>Google Sign-In</strong> — password management is handled by Google.
+              </p>
+            </div>
+          )}
 
           {/* Edit Profile Dialog */}
           <Dialog open={editOpen} onOpenChange={setEditOpen}>

@@ -36,6 +36,11 @@ export interface AuthUser {
 
   profile_picture_url: string | null;
 
+  // Google OAuth fields
+  auth_provider: "local" | "google";
+  google_id: string | null;
+  google_picture_url: string | null;
+
   created_at: string;
   updated_at: string;
 }

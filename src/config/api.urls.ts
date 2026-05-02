@@ -16,6 +16,8 @@ export const API_URLS = {
     // Reset password (authenticated — OTP)
     SEND_RESET_OTP: `${BASE_URL}/auth/send-reset-otp`,
     VERIFY_RESET_PASSWORD: `${BASE_URL}/auth/verify-reset-password`,
+    // Google OAuth
+    GOOGLE_AUTH: `${BASE_URL}/auth/google`,
   },
   USERS: {
     COMPLETE_PROFILE: `${BASE_URL}/users/complete-profile`,
