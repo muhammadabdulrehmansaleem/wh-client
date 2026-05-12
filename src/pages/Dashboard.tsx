@@ -1,28 +1,28 @@
 import { Navigate } from "react-router-dom";
 import authService from "@/services/auth.service";
+import ClientDashboard from "./client/ClientDashboard";
+import WorkerHome from "./worker/WorkerHome";
 
 /**
- * `/dashboard` entry point — immediately redirects to the correct
- * role-specific dashboard page.
+ * `/dashboard` entry point — renders the role-specific overview page.
  *
- * client  → /dashboard/jobs     (client job list)
- * worker  → /dashboard/browse   (browse nearby jobs)
- * admin   → /admin              (admin panel)
+ * client  → ClientDashboard
+ * worker  → WorkerHome
+ * admin   → redirected to /admin (separate route tree)
  */
 export default function Dashboard() {
   const user = authService.getUser();
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/client-login" replace />;
 
   switch (user.role) {
     case "client":
-      return <Navigate to="/dashboard/jobs" replace />;
+      return <ClientDashboard />;
     case "worker":
-      return <Navigate to="/dashboard/browse" replace />;
+      return <WorkerHome />;
     case "admin":
       return <Navigate to="/admin" replace />;
     default:
-      // Profile complete but role somehow null — shouldn't happen
       return <Navigate to="/complete-profile" replace />;
   }
 }

@@ -163,7 +163,7 @@ export function DemoNav({ active }: DemoNavProps) {
 
                 {/* Actions */}
                 <div className="px-4 py-3 space-y-2">
-                  <Link to="/dashboard" className="block">
+                  <Link to="/client" className="block">
                     <Button className="w-full gradient-amber text-accent-foreground font-semibold gap-2 h-10 shadow hover:opacity-90">
                       <LayoutDashboard className="h-4 w-4" /> Go to Dashboard
                       <ArrowRight className="h-3.5 w-3.5 ml-auto" />
@@ -267,7 +267,7 @@ export function DemoNav({ active }: DemoNavProps) {
         <div className="flex items-center gap-2 md:hidden">
           {isLoggedIn ? (
             <>
-              <Link to="/dashboard">
+              <Link to="/client">
                 <Button size="sm" className="gradient-amber text-accent-foreground h-8 text-xs px-3 gap-1">
                   <LayoutDashboard className="h-3 w-3" /> Dashboard
                 </Button>

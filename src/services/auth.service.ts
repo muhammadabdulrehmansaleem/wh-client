@@ -1,4 +1,4 @@
-export type UserRole = "worker" | "client" | "admin";
+export type UserRole = "worker" | "client" | "admin" | "super_admin";
 
 // Mirrors the SafeUser type from the backend (no sensitive fields)
 export interface AuthUser {

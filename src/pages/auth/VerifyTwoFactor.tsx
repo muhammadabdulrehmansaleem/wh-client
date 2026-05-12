@@ -65,18 +65,21 @@ export default function VerifyTwoFactor() {
         code: fullCode,
       });
 
-      // Store access token in authService (in-memory, not localStorage)
       authService.setAccessToken(data.accessToken);
-      authService.setUser(data.user);
+      const userWithPicture = { ...data.user, profile_picture_url: data.profile_picture_url ?? null };
+      authService.setUser(userWithPicture);
 
       toast.success("Verified! Redirecting...");
 
-      // Let the /dashboard role-redirector decide where to send the user
       const user = data.user;
       if (!user.profile_complete) {
         navigate("/complete-profile", { replace: true });
+      } else if (user.role === "worker") {
+        navigate("/worker", { replace: true });
+      } else if (user.role === "admin" || user.role === "super_admin") {
+        navigate("/admin", { replace: true });
       } else {
-        navigate("/dashboard", { replace: true });
+        navigate("/client", { replace: true });
       }
     } catch (error: any) {
       const message = error?.response?.data?.message || "Verification failed.";

@@ -227,7 +227,11 @@ export default function CompleteProfile() {
       const updatedUser = { ...data.user, profile_picture_url: data.profile_picture_url ?? null };
       authService.setUser(updatedUser);
       toast.success("Profile completed! Welcome to WorkHive.");
-      navigate("/dashboard", { replace: true });
+      // Route to role-specific home
+      const role = updatedUser.role;
+      if (role === "worker") navigate("/worker", { replace: true });
+      else if (role === "admin" || role === "super_admin") navigate("/admin", { replace: true });
+      else navigate("/client", { replace: true });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || "Failed to complete profile.");

@@ -1,10 +1,11 @@
-import { LayoutDashboard, Ticket, CreditCard, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Ticket, CreditCard, AlertTriangle, Users } from "lucide-react";
 
 export const adminNavItems = [
-  { title: "Overview", url: "/admin", icon: LayoutDashboard },
-  { title: "All Tickets", url: "/admin/tickets", icon: Ticket },
-  { title: "Payments", url: "/admin/payments", icon: CreditCard },
-  { title: "Complaints", url: "/admin/complaints", icon: AlertTriangle },
+  { title: "Overview",    url: "/admin",            icon: LayoutDashboard },
+  { title: "All Tickets", url: "/admin/tickets",    icon: Ticket },
+  { title: "Payments",    url: "/admin/payments",   icon: CreditCard },
+  { title: "Complaints",  url: "/admin/complaints", icon: AlertTriangle },
+  { title: "Users",       url: "/admin/users",      icon: Users },
 ];
 
 export const statusColors: Record<string, string> = {

@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { PlusCircle, ListChecks, MapPin } from "lucide-react";
+import { LayoutDashboard, PlusCircle, ListChecks, MapPin, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { mockJobs, CATEGORIES } from "@/data/mockData";
 import { toast } from "sonner";
 
 const navItems = [
-  { title: "Post a Job", url: "/client", icon: PlusCircle },
-  { title: "My Jobs", url: "/client/jobs", icon: ListChecks },
+  { title: "Overview",   url: "/client",          icon: LayoutDashboard },
+  { title: "Post a Job", url: "/client/post-job", icon: PlusCircle },
+  { title: "My Jobs",    url: "/client/jobs",     icon: ListChecks },
+  { title: "My Profile", url: "/profile",         icon: User },
 ];
 
 const statusColors: Record<string, string> = {

@@ -15,14 +15,15 @@ import ForgotPassword   from "./pages/auth/ForgotPassword";
 import ResetPassword    from "./pages/auth/ResetPassword";
 
 // ── Shared authenticated pages ────────────────────────────────────────────────
-import Dashboard        from "./pages/Dashboard";
 import Profile          from "./pages/Profile";
 
 // ── Client pages ──────────────────────────────────────────────────────────────
+import ClientDashboard  from "./pages/client/ClientDashboard";
 import ClientJobs       from "./pages/client/ClientJobs";
 import ClientPostJob    from "./pages/client/ClientPostJob";
 
 // ── Worker pages ──────────────────────────────────────────────────────────────
+import WorkerHome           from "./pages/worker/WorkerHome";
 import WorkerDashboard      from "./pages/worker/WorkerDashboard";
 import WorkerNotifications  from "./pages/worker/WorkerNotifications";
 
@@ -31,6 +32,7 @@ import AdminDashboard   from "./pages/admin/AdminDashboard";
 import AdminTickets     from "./pages/admin/AdminTickets";
 import AdminPayments    from "./pages/admin/AdminPayments";
 import AdminComplaints  from "./pages/admin/AdminComplaints";
+import AdminUsers       from "./pages/admin/AdminUsers";
 
 // ── Demo preview pages (public, read-only) ──────────────────────────────────
 import DemoClientPage   from "./pages/demo/DemoClientPage";
@@ -51,49 +53,53 @@ const App = () => (
         <Routes>
 
           {/* ── Public ─────────────────────────────────────────────────── */}
-          <Route path="/"                    element={<LandingPage />} />
+          <Route path="/"                     element={<LandingPage />} />
           <Route path="/categories/:category" element={<CategoryPage />} />
-          <Route path="/login"               element={<Login />} />
-          <Route path="/signup"              element={<Signup />} />
-          <Route path="/verify-2fa"          element={<VerifyTwoFactor />} />
-          <Route path="/complete-profile"    element={<CompleteProfile />} />
-          <Route path="/forgot-password"     element={<ForgotPassword />} />
-          <Route path="/reset-password"      element={<ResetPassword />} />
+          <Route path="/login"                element={<Login />} />
+          <Route path="/signup"               element={<Signup />} />
+          <Route path="/verify-2fa"           element={<VerifyTwoFactor />} />
+          <Route path="/complete-profile"     element={<CompleteProfile />} />
+          <Route path="/forgot-password"      element={<ForgotPassword />} />
+          <Route path="/reset-password"       element={<ResetPassword />} />
           <Route path="/demo/client"          element={<DemoClientPage />} />
           <Route path="/demo/worker"          element={<DemoWorkerPage />} />
 
-          {/* ── Authenticated — shared ──────────────────────────────────── */}
+          {/* ── Shared (any authenticated user) ────────────────────────── */}
           <Route element={<ProtectedRoute />}>
-            {/* /dashboard → role-aware redirect */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile"   element={<Profile />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
-          {/* ── Client ─────────────────────────────────────────────────── */}
-          <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
-            <Route path="/dashboard/jobs"      element={<ClientJobs />} />
-            <Route path="/dashboard/post-job"  element={<ClientPostJob />} />
+          {/* ── Client portal  /client/* ────────────────────────────────── */}
+          <Route element={<ProtectedRoute allowedRoles={["client", "super_admin"]} />}>
+            <Route path="/client"          element={<ClientDashboard />} />
+            <Route path="/client/post-job" element={<ClientPostJob />} />
+            <Route path="/client/jobs"     element={<ClientJobs />} />
           </Route>
 
-          {/* ── Worker ─────────────────────────────────────────────────── */}
-          <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
-            <Route path="/dashboard/browse"        element={<WorkerDashboard />} />
-            <Route path="/dashboard/notifications" element={<WorkerNotifications />} />
+          {/* ── Worker portal  /worker/* ────────────────────────────────── */}
+          <Route element={<ProtectedRoute allowedRoles={["worker", "super_admin"]} />}>
+            <Route path="/worker"                  element={<WorkerHome />} />
+            <Route path="/worker/browse"           element={<WorkerDashboard />} />
+            <Route path="/worker/notifications"    element={<WorkerNotifications />} />
           </Route>
 
-          {/* ── Admin ──────────────────────────────────────────────────── */}
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          {/* ── Admin portal  /admin/* ──────────────────────────────────── */}
+          <Route element={<ProtectedRoute allowedRoles={["admin", "super_admin"]} />}>
             <Route path="/admin"              element={<AdminDashboard />} />
             <Route path="/admin/tickets"      element={<AdminTickets />} />
             <Route path="/admin/payments"     element={<AdminPayments />} />
             <Route path="/admin/complaints"   element={<AdminComplaints />} />
+            <Route path="/admin/users"        element={<AdminUsers />} />
           </Route>
 
-          {/* ── Legacy redirects ───────────────────────────────────────── */}
-          <Route path="/worker"              element={<Navigate to="/dashboard/browse" replace />} />
-          <Route path="/worker/notifications" element={<Navigate to="/dashboard/notifications" replace />} />
-          <Route path="/client"              element={<Navigate to="/dashboard/post-job" replace />} />
-          <Route path="/client/jobs"         element={<Navigate to="/dashboard/jobs" replace />} />
+          {/* ── Legacy redirects (keep old bookmarks working) ───────────── */}
+          <Route path="/client-login"                element={<Navigate to="/login" replace />} />
+          <Route path="/admin-login"                 element={<Navigate to="/login" replace />} />
+          <Route path="/dashboard"                   element={<Navigate to="/client" replace />} />
+          <Route path="/dashboard/post-job"          element={<Navigate to="/client/post-job" replace />} />
+          <Route path="/dashboard/jobs"              element={<Navigate to="/client/jobs" replace />} />
+          <Route path="/dashboard/browse"            element={<Navigate to="/worker/browse" replace />} />
+          <Route path="/dashboard/notifications"     element={<Navigate to="/worker/notifications" replace />} />
 
           {/* ── 404 ────────────────────────────────────────────────────── */}
           <Route path="*" element={<NotFound />} />

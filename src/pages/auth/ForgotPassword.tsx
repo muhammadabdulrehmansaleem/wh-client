@@ -56,7 +56,7 @@ export default function ForgotPassword() {
                 password reset link shortly. Check your spam folder if you don't see it.
               </p>
               <Link
-                to="/login"
+                to="/client-login"
                 className="inline-flex items-center gap-1.5 text-sm text-amber-500 hover:text-amber-400 font-medium transition-colors mt-2"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
@@ -101,7 +101,7 @@ export default function ForgotPassword() {
 
               <div className="mt-5 text-center">
                 <Link
-                  to="/login"
+                  to="/client-login"
                   className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in

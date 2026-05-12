@@ -176,7 +176,7 @@ export function DemoFooter() {
             <span>·</span>
             <Link to="/signup" className="hover:text-amber-500 transition-colors">Sign Up Free</Link>
             <span>·</span>
-            <Link to="/login" className="hover:text-amber-500 transition-colors">Log In</Link>
+            <Link to="/client-login" className="hover:text-amber-500 transition-colors">Log In</Link>
           </div>
         </div>
 

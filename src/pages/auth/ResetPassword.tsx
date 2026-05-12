@@ -33,7 +33,7 @@ export default function ResetPassword() {
         confirm_password: confirmPw,
       });
       toast.success("Password reset successfully. Please log in.");
-      navigate("/login");
+      navigate("/client-login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || "Failed to reset password. The link may have expired.");
@@ -162,7 +162,7 @@ export default function ResetPassword() {
 
           <div className="mt-5 text-center">
             <Link
-              to="/login"
+              to="/client-login"
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in

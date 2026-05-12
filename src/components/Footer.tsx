@@ -22,8 +22,8 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">For Workers</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/worker" className="text-foreground hover:text-accent transition-colors">Browse Jobs</Link></li>
-              <li><Link to="/worker/notifications" className="text-foreground hover:text-accent transition-colors">Notifications</Link></li>
+              <li><Link to="/dashboard/browse" className="text-foreground hover:text-accent transition-colors">Browse Jobs</Link></li>
+              <li><Link to="/dashboard/notifications" className="text-foreground hover:text-accent transition-colors">Notifications</Link></li>
               <li><span className="text-muted-foreground">My Applications</span></li>
               <li><span className="text-muted-foreground">Earnings</span></li>
             </ul>
@@ -33,8 +33,8 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">For Clients</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/client" className="text-foreground hover:text-accent transition-colors">Post a Job</Link></li>
-              <li><Link to="/client/jobs" className="text-foreground hover:text-accent transition-colors">My Jobs</Link></li>
+              <li><Link to="/dashboard/post-job" className="text-foreground hover:text-accent transition-colors">Post a Job</Link></li>
+              <li><Link to="/dashboard/jobs" className="text-foreground hover:text-accent transition-colors">My Jobs</Link></li>
               <li><span className="text-muted-foreground">Payment History</span></li>
               <li><span className="text-muted-foreground">Support</span></li>
             </ul>
@@ -47,7 +47,7 @@ export function Footer() {
               <li><span className="text-muted-foreground">About Us</span></li>
               <li><span className="text-muted-foreground">Terms of Service</span></li>
               <li><span className="text-muted-foreground">Privacy Policy</span></li>
-              <li><Link to="/admin" className="text-foreground hover:text-accent transition-colors">Admin Portal</Link></li>
+              <li><Link to="/admin-login" className="text-foreground hover:text-accent transition-colors">Admin Portal</Link></li>
             </ul>
           </div>
         </div>

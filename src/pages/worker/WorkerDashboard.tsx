@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { Briefcase, Bell, MapPin, Search } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bell, MapPin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,10 @@ import { mockJobs, mockNotifications, UK_CITIES, CATEGORIES } from "@/data/mockD
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
-  { title: "Browse Jobs", url: "/worker", icon: Briefcase },
+  { title: "Overview",      url: "/worker",               icon: LayoutDashboard },
+  { title: "Browse Jobs",   url: "/worker/browse",        icon: Briefcase },
   { title: "Notifications", url: "/worker/notifications", icon: Bell },
+  { title: "My Profile",    url: "/profile",              icon: User },
 ];
 
 function JobCard({ job }: { job: typeof mockJobs[0] }) {

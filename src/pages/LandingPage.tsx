@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import authService from "@/services/auth.service";
 import { motion } from "framer-motion";
 import {
   Shield, MapPin, CreditCard, ArrowRight, Star, CheckCircle2,
@@ -42,6 +43,18 @@ const TRUST = [
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState<"client" | "worker">("client");
 
+  const isLoggedIn = authService.isAuthenticated();
+  const userRole   = authService.getUser()?.role;
+
+  // Where CTA buttons land depending on auth state & role
+  const clientCTA = isLoggedIn
+    ? (userRole === "client" ? "/client/post-job" : userRole === "admin" || userRole === "super_admin" ? "/admin" : "/client")
+    : "/signup";
+  const workerCTA = isLoggedIn
+    ? (userRole === "worker" ? "/worker/browse" : userRole === "admin" || userRole === "super_admin" ? "/admin" : "/worker")
+    : "/signup";
+  const browseCTA = isLoggedIn ? "/worker/browse" : "/demo/worker";
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -74,7 +87,7 @@ export default function LandingPage() {
                   and pay only when you're satisfied. Trusted by 8,900+ UK clients.
                 </p>
                 <div className="flex flex-wrap gap-4 mb-10">
-                  <Link to="/signup">
+                  <Link to={clientCTA}>
                     <Button size="lg" className="gradient-amber text-accent-foreground font-semibold text-base px-8 hover:opacity-90 transition-opacity shadow-lg shadow-amber-500/20">
                       Post a Job Free <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
@@ -197,12 +210,12 @@ export default function LandingPage() {
             {activeTab === "client" ? (
               <>
                 <Link to="/demo/client"><Button variant="outline" className="gap-2"><Eye className="h-4 w-4" /> See Client Demo</Button></Link>
-                <Link to="/signup"><Button className="gradient-amber text-accent-foreground gap-2">Post a Job Free <ArrowRight className="h-4 w-4" /></Button></Link>
+                <Link to={clientCTA}><Button className="gradient-amber text-accent-foreground gap-2">Post a Job Free <ArrowRight className="h-4 w-4" /></Button></Link>
               </>
             ) : (
               <>
                 <Link to="/demo/worker"><Button variant="outline" className="gap-2"><Eye className="h-4 w-4" /> See Worker Demo</Button></Link>
-                <Link to="/signup"><Button className="gradient-amber text-accent-foreground gap-2">Start Earning <ArrowRight className="h-4 w-4" /></Button></Link>
+                <Link to={workerCTA}><Button className="gradient-amber text-accent-foreground gap-2">Start Earning <ArrowRight className="h-4 w-4" /></Button></Link>
               </>
             )}
           </div>
@@ -217,7 +230,7 @@ export default function LandingPage() {
               <span className="inline-block px-3 py-1 rounded-full text-xs font-medium gradient-amber text-accent-foreground mb-2">Live on the platform</span>
               <h2 className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Jobs posted right now</h2>
             </div>
-            <Link to="/demo/worker" className="hidden md:flex items-center gap-1 text-sm text-amber-500 hover:text-amber-400 transition-colors">
+            <Link to={browseCTA} className="hidden md:flex items-center gap-1 text-sm text-amber-500 hover:text-amber-400 transition-colors">
               Browse all <ChevronRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -245,7 +258,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">{job.bidsCount ?? 0} bids</span>
-                    <Link to="/signup">
+                    <Link to={workerCTA}>
                       <Button size="sm" variant="outline" className="h-7 text-xs">Place Bid</Button>
                     </Link>
                   </div>
@@ -265,14 +278,16 @@ export default function LandingPage() {
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {CATEGORIES.map((cat, i) => (
-              <motion.div key={cat.value} {...fadeUp(i * 0.05)}
-                className="rounded-2xl border bg-card p-4 text-center hover:shadow-md hover:border-amber-500/50 transition-all cursor-pointer">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-amber text-accent-foreground shadow mx-auto mb-3">
-                  <span className="text-2xl">{cat.icon}</span>
-                </div>
-                <p className="font-semibold text-sm">{cat.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">UK-wide</p>
-              </motion.div>
+              <Link key={cat.value} to={`/categories/${cat.value}`}>
+                <motion.div {...fadeUp(i * 0.05)}
+                  className="rounded-2xl border bg-card p-4 text-center hover:shadow-md hover:border-amber-500/50 transition-all">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-amber text-accent-foreground shadow mx-auto mb-3">
+                    <span className="text-2xl">{cat.icon}</span>
+                  </div>
+                  <p className="font-semibold text-sm">{cat.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">UK-wide</p>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </div>
@@ -286,7 +301,7 @@ export default function LandingPage() {
               <span className="inline-block px-3 py-1 rounded-full text-xs font-medium gradient-amber text-accent-foreground mb-2">Our workforce</span>
               <h2 className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Top rated workers near you</h2>
             </div>
-            <Link to="/demo/client" className="hidden md:flex items-center gap-1 text-sm text-amber-500 hover:text-amber-400 transition-colors">
+            <Link to={clientCTA} className="hidden md:flex items-center gap-1 text-sm text-amber-500 hover:text-amber-400 transition-colors">
               View all <ChevronRight className="h-4 w-4" />
             </Link>
           </motion.div>
@@ -330,7 +345,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center justify-between mt-4">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" /> Responds {worker.responseTime}</span>
-                  <Link to="/signup"><Button size="sm" variant="outline" className="h-7 text-xs">Hire Now</Button></Link>
+                  <Link to={clientCTA}><Button size="sm" variant="outline" className="h-7 text-xs">Hire Now</Button></Link>
                 </div>
               </motion.div>
             ))}
@@ -402,12 +417,12 @@ export default function LandingPage() {
               Join 12,000+ people already using WorkHive to get work done or earn more.
             </p>
             <div className="flex flex-wrap justify-center gap-5">
-              <Link to="/signup">
+              <Link to={clientCTA}>
                 <Button size="lg" className="gradient-amber text-accent-foreground font-semibold text-base px-10 shadow-lg shadow-amber-500/20 hover:opacity-90">
                   Post a Job — It's Free <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/signup">
+              <Link to={workerCTA}>
                 <Button size="lg" variant="outline" className="border-2 border-[hsl(45_100%_51%)] bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground font-semibold text-base px-10">
                   <Wrench className="mr-2 h-5 w-5" /> Join as a Worker
                 </Button>

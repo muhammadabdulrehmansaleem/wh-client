@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { Briefcase, Bell } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bell, User } from "lucide-react";
 import { mockNotifications } from "@/data/mockData";
 
 const navItems = [
-  { title: "Browse Jobs", url: "/worker", icon: Briefcase },
+  { title: "Overview",      url: "/worker",               icon: LayoutDashboard },
+  { title: "Browse Jobs",   url: "/worker/browse",        icon: Briefcase },
   { title: "Notifications", url: "/worker/notifications", icon: Bell },
+  { title: "My Profile",    url: "/profile",              icon: User },
 ];
 
 export default function WorkerNotifications() {

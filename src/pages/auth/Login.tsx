@@ -39,8 +39,12 @@ export default function Login() {
       toast.success("Signed in with Google!");
       if (!user.profile_complete) {
         navigate("/complete-profile", { replace: true });
+      } else if (user.role === "worker") {
+        navigate("/worker", { replace: true });
+      } else if (user.role === "admin" || user.role === "super_admin") {
+        navigate("/admin", { replace: true });
       } else {
-        navigate("/dashboard", { replace: true });
+        navigate("/client", { replace: true });
       }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };

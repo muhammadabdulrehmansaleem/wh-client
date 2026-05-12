@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
-import { PlusCircle, ListChecks, CreditCard } from "lucide-react";
+import { LayoutDashboard, PlusCircle, ListChecks, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,8 +11,10 @@ import { mockJobs, UK_CITIES, CATEGORIES, Job } from "@/data/mockData";
 import { toast } from "sonner";
 
 const navItems = [
-  { title: "Post a Job", url: "/client", icon: PlusCircle },
-  { title: "My Jobs", url: "/client/jobs", icon: ListChecks },
+  { title: "Overview",   url: "/client",          icon: LayoutDashboard },
+  { title: "Post a Job", url: "/client/post-job", icon: PlusCircle },
+  { title: "My Jobs",    url: "/client/jobs",     icon: ListChecks },
+  { title: "My Profile", url: "/profile",         icon: User },
 ];
 
 export default function ClientPostJob() {
